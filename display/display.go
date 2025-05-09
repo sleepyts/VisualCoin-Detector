@@ -11,6 +11,8 @@ var App fyne.App
 var MainWindow fyne.Window
 var PriceLabel *widget.Label
 
+var PriceLabels []*widget.Label
+
 func Init() {
 
 	// 创建 Fyne 应用

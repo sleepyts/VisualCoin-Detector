@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"os/exec"
+	"strconv"
 	"time"
 
 	"fyne.io/fyne/v2"
@@ -53,7 +54,15 @@ func main() {
 						continue
 					}
 
-					showLabel += coinName + "-USDT: " + response.Data[0].Last + "\n"
+					last, _ := strconv.ParseFloat(response.Data[0].Last, 64)
+					sodUtc0, _ := strconv.ParseFloat(response.Data[0].SodUtc0, 64)
+					rate := (last - sodUtc0) / sodUtc0 * 100
+
+					buyPrice := config.AppConfig.Coins[index].BuyPrice
+					buyNum := config.AppConfig.Coins[index].BuyNum
+					profit := (last - buyPrice) * buyNum
+
+					showLabel += coinName + "-USDT: " + response.Data[0].Last + "   " + strconv.FormatFloat(rate, 'f', 2, 64) + "%\n" + "Profit: " + strconv.FormatFloat(profit, 'f', 2, 64) + " USDT\n"
 
 				}
 				fyne.Do(func() {

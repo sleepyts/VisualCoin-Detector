@@ -3,6 +3,7 @@ package config
 import (
 	"log"
 	"os"
+	"strconv"
 	"strings"
 
 	"gopkg.in/ini.v1"
@@ -29,7 +30,9 @@ type ProxyConfig struct {
 var AppConfig *Config
 
 type CoinConfig struct {
-	CoinName string `ini:"coin_name"`
+	CoinName string  `ini:"coin_name"`
+	BuyPrice float64 `ini:"buy_price"`
+	BuyNum   float64 `ini:"buy_num"`
 }
 
 func InitConfig() {
@@ -45,10 +48,25 @@ func InitConfig() {
 	AppConfig.UseProxy = cfg.Section("proxy").Key("use_proxy").MustBool(false)
 
 	cfg.Section("proxy").MapTo(&AppConfig.Proxy)
-	coinStr := cfg.Section("coins").Key("coin_name").String()
-	coinNames := strings.Split(coinStr, ",")
-	for _, c := range coinNames {
-		AppConfig.Coins = append(AppConfig.Coins, CoinConfig{CoinName: strings.TrimSpace(c)})
+	{
+		coinNameStr := cfg.Section("coins").Key("coin_name").String()
+		coinNames := strings.Split(coinNameStr, ",")
+		for _, c := range coinNames {
+			AppConfig.Coins = append(AppConfig.Coins, CoinConfig{CoinName: strings.TrimSpace(c)})
+		}
+
+		coinBuyPriceStr := cfg.Section("coins").Key("buy_price").String()
+		coinBuyPrices := strings.Split(coinBuyPriceStr, ",")
+		for i, c := range coinBuyPrices {
+			AppConfig.Coins[i].BuyPrice, _ = strconv.ParseFloat(strings.TrimSpace(c), 64)
+		}
+
+		coinBuyNumStr := cfg.Section("coins").Key("buy_num").String()
+		coinBuyNums := strings.Split(coinBuyNumStr, ",")
+		for i, c := range coinBuyNums {
+			AppConfig.Coins[i].BuyNum, _ = strconv.ParseFloat(strings.TrimSpace(c), 64)
+		}
+
 	}
 
 	AppConfig.BaseApiUrl = cfg.Section("api").Key("base_api_url").String()
